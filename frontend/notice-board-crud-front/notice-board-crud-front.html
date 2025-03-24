@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD 게시판</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .post {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .post h3 {
+            margin: 0;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        button {
+            padding: 8px 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CRUD 게시판</h1>
+    <div id="auth-section">
+        <button onclick="loginWithGoogle()">Google 로그인</button>
+        <button onclick="logout()" style="display:none;">로그아웃</button>
+        <p id="user-info" style="display:none;"></p>
+    </div>
+    
+    <!-- 게시글 작성 폼 (로그인한 사람에게만 보임)-->
+    <div id="post-section" style="display:none;">
+        <form id="post-form">
+            <input type="text" id="title" placeholder="제목" required>
+            <textarea id="content" placeholder="내용" required></textarea>
+            <button type="submit">작성</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <!-- <div>
+        <form id="post-form">
+            <input type="text" name="title" placeholder="제목" required>
+            <textarea name="content" placeholder="내용" required></textarea>
+            <button type="submit">작성</button>
+        </form>
+    </div> -->
+
+    <div>
+        <h2>게시글 목록</h2>
+        <div id="post-list"></div>
+    </div>
+
+    <script>
+        const apiUrl = "http://localhost:8080/api/posts";
+        const authUrl = "http://localhost:8080/auth/login-success";
+
+        // 로그인 버튼 클릭시 OAuth2 로그인 페이지로 이동 
+        function loginWithGoogle() {
+            window.location.href = "http://localhost:8080/oauth2/authorization/google";
+        }
+
+        // 로그인 성공 시 JWT 저장 및 UI 변경 
+        function checkLoginStatus() {
+            const token = localStorage.getItem("token");
+
+            if (token) {
+                document.getElementById("auth-section").innerHTML = `
+                    <button onclick="logout()>"로그아웃</button>
+                    <p id="user-info">로그인됨</p>
+                `;
+                document.getElementById("post-section").style.display = "block";
+            } else {
+                document.getElementById("post-section").style.display = "none";
+            }
+        }
+
+        // 로그아웃 (토큰 삭제 후 UI 초기화)
+        function logout() {
+            localStorage.removeItem("token");
+            alert("로그아웃 되었습니다.");
+            location.reload();
+        }
+
+        // 게시글 목록 
+        function fetchPosts() {
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const postsContainer = document.getElementById('post-list');
+                postsContainer.innerHTML = '';
+                data.forEach(post => {
+                    const postDiv = document.createElement('div');
+                    postDiv.className = 'post';
+                    postDiv.innerHTML = `
+                        <h3>${post.title}</h3>
+                        <p>${post.content}</p>
+                        <small>작성자: ${post.authorName}</small>
+                    `;
+                    postsContainer.appendChild(postDiv);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // 게시글 작성 (JWT 포함)
+        document.getElementById('post-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById(id="title").value;
+            const content = document.getElementById(id="content").value;
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ${token}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, content })
+            })
+            .then(response => response.json())
+            .then(data => {
+                fetchPosts();
+                document.getElementById('post-form').reset();
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // 페이지 로드 시 로그인 상태 확인 및 게시글 불러오기 
+        checkLoginStatus();
+        fetchPosts();
+    </script>
+</body>
+</html>
