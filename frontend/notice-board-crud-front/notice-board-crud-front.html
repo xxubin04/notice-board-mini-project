@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .post {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .post h3 {
+            margin: 0;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        button {
+            padding: 8px 16px;
+        }
+        .comments {
+            margin-top: 10px;
+            padding-left: 10px;
+            border-left: 2px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>게시판</h1>
+    <div id="auth-section">
+        <button onclick="loginWithGoogle()">Google 로그인</button>
+        <button onclick="logout()" style="display:none;">로그아웃</button>
+        <p id="user-info" style="display:none;"></p>
+    </div>
+
+    <div id="post-section" style="display:none;">
+        <form id="post-form">
+            <input type="text" id="title" placeholder="제목" required>
+            <textarea id="content" placeholder="내용" required></textarea>
+            <button type="submit">작성</button>
+        </form>
+    </div>
+
+    <div>
+        <h2>게시글 목록</h2>
+        <div id="post-list"></div>
+    </div>
+
+    <script>
+        const apiUrl = "http://localhost:8080/api/posts";
+        const commentUrl = "http://localhost:8080/api/comments";
+        const authUrl = "http://localhost:8080/auth/login-success";
+
+        function loginWithGoogle() {
+            window.location.href = "http://localhost:8080/oauth2/authorization/google";
+        }
+
+        function checkLoginStatus() {
+            const token = localStorage.getItem("token");
+            if (token) {
+                document.getElementById("auth-section").innerHTML = `
+                    <button onclick="logout()">로그아웃</button>
+                    <p id="user-info">로그인됨</p>
+                `;
+                document.getElementById("post-section").style.display = "block";
+            } else {
+                document.getElementById("post-section").style.display = "none";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            alert("로그아웃 되었습니다.");
+            location.reload();
+        }
+
+        function fetchPosts() {
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const postsContainer = document.getElementById('post-list');
+                postsContainer.innerHTML = '';
+                data.forEach(post => {
+                    const postDiv = document.createElement('div');
+                    postDiv.className = 'post';
+                    postDiv.innerHTML = `
+                        <h3>${post.title}</h3>
+                        <p>${post.content}</p>
+                        <small>작성자: ${post.authorName}</small>
+                        <div class="comments" id="comments-${post.id}"></div>
+                        <div>
+                            <textarea id="comment-input-${post.id}" placeholder="댓글을 입력하세요"></textarea>
+                            <button onclick="submitComment(${post.id})">댓글 작성</button>
+                        </div>
+                    `;
+                    postsContainer.appendChild(postDiv);
+                    fetchComments(post.id);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchComments(postId) {
+            fetch(`${commentUrl}?postId=${postId}`)
+            .then(res => res.json())
+            .then(comments => {
+                const container = document.getElementById(`comments-${postId}`);
+                container.innerHTML = '<h4>댓글</h4>' + comments.map(c => `<p>- ${c.content}</p>`).join('');
+            });
+        }
+
+        function submitComment(postId) {
+            const token = localStorage.getItem("token");
+            if (!token) return alert("로그인이 필요합니다.");
+
+            const content = document.getElementById(`comment-input-${postId}`).value;
+
+            fetch(commentUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ postId, content })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("댓글 작성 실패");
+                fetchComments(postId);
+                document.getElementById(`comment-input-${postId}`).value = '';
+            })
+            .catch(err => alert(err.message));
+        }
+
+        document.getElementById('post-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("content").value;
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, content })
+            })
+            .then(response => response.json())
+            .then(data => {
+                fetchPosts();
+                document.getElementById('post-form').reset();
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        checkLoginStatus();
+        fetchPosts();
+    </script>
+</body>
+</html>
