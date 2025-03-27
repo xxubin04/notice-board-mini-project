@@ -1,4 +1,4 @@
-# CRUD 공부 프로젝트
+# Spring Boot 공부 프로젝트
 
 <br>
 
