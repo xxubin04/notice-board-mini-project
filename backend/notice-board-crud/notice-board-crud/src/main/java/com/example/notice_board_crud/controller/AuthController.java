@@ -5,14 +5,18 @@ import com.example.notice_board_crud.entity.User;
 import com.example.notice_board_crud.repository.UserRepository;
 import com.example.notice_board_crud.security.JwtTokenProvider;
 import com.example.notice_board_crud.service.PostService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:5500")
 @RestController
 @RequestMapping("/auth")
 @AllArgsConstructor
@@ -21,17 +25,18 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PostService postService;
 
-    // 기본 생성자 필요 없음?
     @GetMapping("/login-success")
-    public String loginSuccess(OAuth2AuthenticationToken authToken) {
+    public void loginSuccess(HttpServletResponse response, OAuth2AuthenticationToken authToken) throws IOException {
         OAuth2User user = authToken.getPrincipal();
         String email = user.getAttribute("email");
         Optional<User> userInfo = userRepository.findByEmail(email);
 
         if (userInfo.isPresent()) {
-            return jwtTokenProvider.generateToken(email);
+            // JSON에 Access Token 담기
+            String token = jwtTokenProvider.generateToken(email);
+            response.sendRedirect("http://localhost:5500/login-success.html?token=" + token);
         } else {
-            return "Unauthorized";
+            response.sendRedirect("http://localhost:5050/login-fail.html");
         }
     }
 

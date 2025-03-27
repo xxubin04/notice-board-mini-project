@@ -20,12 +20,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
+
+        // 사용자 정보 받아오기
         OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
+        // Google에서 받은 사용자 정보 추출
         String email = (String) attributes.get("email");
         String name = (String) attributes.get("name");
 
+        // DB에 사용자 등록 또는 조회
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     User newUser = new User();
@@ -35,6 +39,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     return userRepository.save(newUser);
                 });
 
+        // 별도의 JWT 발급 처리
         return oAuth2User;
     }
 }
