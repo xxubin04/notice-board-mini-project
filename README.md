@@ -3,7 +3,7 @@
 <br>
 <br>
 
-### 🔵 Issue [#1](https://github.com/xxubin04/notice-board-mini-project/issues/1)
+### 🔵 Issue [#1](https://github.com/xxubin04/notice-board-mini-project/issues/1) - 2025.03.25
 
 - [JWT란?](https://magic-acorn-b9d.notion.site/JWT-1bf2d6b1617c8041a2c7e2c349193fc1?pvs=4) 
 - [Google OAuth2.0 연동 방법](https://magic-acorn-b9d.notion.site/OAuth2-0-Google-1c02d6b1617c807b88e0d6c3a43f0ad2?pvs=4)
@@ -11,7 +11,7 @@
 <br>
 <br>
 
-### 🔵 Issue [#3](https://github.com/xxubin04/notice-board-mini-project/issues/3)
+### 🔵 Issue [#3](https://github.com/xxubin04/notice-board-mini-project/issues/3) - 2025.03.27
 
 - [OAuth2.0 인증방식 4가지](https://magic-acorn-b9d.notion.site/OAuth2-0-4-1c22d6b1617c80a4b2b7e61ccd072fc5?pvs=4)
 - [Access Token을 JSON 형태로 FE에 반환](https://magic-acorn-b9d.notion.site/Access-Token-JSON-FE-1c32d6b1617c80fd9351db94a575444d?pvs=4)
