@@ -18,7 +18,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/auth/login-success", true)
+                .defaultSuccessUrl("http://localhost:5500/login-success.html", true)
             );
 
         return http.build();
