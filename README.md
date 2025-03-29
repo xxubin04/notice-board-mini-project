@@ -22,8 +22,8 @@
 
 ### 🔵 Issue [#3](https://github.com/xxubin04/notice-board-mini-project/issues/3) - 2025.03.27
 
-- ✅ [Spring Security와 OAuth2.0을 이용한 소셜 로그인](https://magic-acorn-b9d.notion.site/Spring-Security-OAuth2-0-1c22d6b1617c8090ad6edc46beba8f38?pvs=4)
 - ✅ [Access Token을 JSON 형태로 FE에 반환](https://magic-acorn-b9d.notion.site/Access-Token-JSON-FE-1c32d6b1617c80fd9351db94a575444d?pvs=4)
+- 📘 [Spring Security와 OAuth2.0을 이용한 소셜 로그인](https://magic-acorn-b9d.notion.site/Spring-Security-OAuth2-0-1c22d6b1617c8090ad6edc46beba8f38?pvs=4)
 - 📘 [OAuth2.0 인증방식 4가지](https://magic-acorn-b9d.notion.site/OAuth2-0-4-1c22d6b1617c80a4b2b7e61ccd072fc5?pvs=4)
 - 📘 [OAuth 프로토콜](https://magic-acorn-b9d.notion.site/OAuth-1c22d6b1617c80658f48cf9f33b23ee1?pvs=4)
 - 📘 [Java - interface](https://magic-acorn-b9d.notion.site/Java-interface-1c22d6b1617c8088a724ef8ccfd74729?pvs=4)
