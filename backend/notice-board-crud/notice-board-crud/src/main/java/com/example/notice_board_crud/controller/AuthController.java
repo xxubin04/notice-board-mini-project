@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:5500")
+@CrossOrigin(origins = "http://localhost:5500", allowCredentials = "true")
 @RestController
 @RequestMapping("/auth")
 @AllArgsConstructor
@@ -25,8 +25,9 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PostService postService;
 
+    // JWT 반환 (BE -> FE)
     @GetMapping("/login-success")
-    public void loginSuccess(HttpServletResponse response, OAuth2AuthenticationToken authToken) throws IOException {
+    public ResponseEntity<Map<String, String>> loginSuccess(HttpServletResponse response, OAuth2AuthenticationToken authToken) throws IOException {
         OAuth2User user = authToken.getPrincipal();
         String email = user.getAttribute("email");
         Optional<User> userInfo = userRepository.findByEmail(email);
@@ -34,12 +35,13 @@ public class AuthController {
         if (userInfo.isPresent()) {
             // JSON에 Access Token 담기
             String token = jwtTokenProvider.generateToken(email);
-            response.sendRedirect("http://localhost:5500/login-success.html?token=" + token);
+            return ResponseEntity.ok(Map.of("token", token));
         } else {
-            response.sendRedirect("http://localhost:5050/login-fail.html");
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
         }
     }
 
+    // JWT 인증 처리 (FE -> BE)
     @PostMapping
     public ResponseEntity<Post> createPost(@RequestHeader("Authorization") String token, @RequestBody Post post) {
         String email = jwtTokenProvider.validateToken(token);

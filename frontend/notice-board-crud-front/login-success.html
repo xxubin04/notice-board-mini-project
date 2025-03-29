@@ -1,25 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>로그인 처리 중</title>
 </head>
 <body>
-  <p id="status">로그인 처리 중</p>
+  <p id="status">로그인 처리 중입니다...</p>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");  // 토큰 추출 
+    fetch("http://localhost:8080/auth/login-success", {
+      method: "GET",
+      credentials: "include", 
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("토큰 요청 실패");
+      return res.json();
+    })
+    .then(data => {
+      const token = data.token;
+      if (token) {
+        localStorage.setItem("token", token);  
+        document.getElementById("status").textContent = "로그인 성공! 게시판으로 이동 중...";
 
-    if (token) {
-      localStorage.setItem("token", token);
-      document.getElementById("status").textContent = "로그인 성공! 게시판으로 이동합니다.";
-      setTimeout(() => {
-        window.location.href = "notice-board-crud-front.html";  // 게시판 메인 페이지로 리다이렉트
-      }, 1500);
-    } else {
-      document.getElementById("status").textContent = "로그인 실패: 토큰 없음";
-    }
+        setTimeout(() => {
+          window.location.href = "notice-board-crud-front.html";  
+        }, 1000);
+      } else {
+        document.getElementById("status").textContent = "로그인 실패: 토큰 없음";
+      }
+    })
+    .catch(err => {
+      document.getElementById("status").textContent = "오류 발생: " + err.message;
+    });
   </script>
 </body>
 </html>
